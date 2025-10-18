@@ -99,72 +99,72 @@ export interface Playlist {
 export const api = {
   // Search
   async searchAll(query: string) {
-    const response = await fetch(`${API_BASE_URL}/api/search/all?query=${encodeURIComponent(query)}`);
+    const response = await fetch(`${API_BASE_URL}/search/all?query=${encodeURIComponent(query)}`);
     return response.json();
   },
 
   async searchSongs(query: string) {
-    const response = await fetch(`${API_BASE_URL}/api/search/songs?query=${encodeURIComponent(query)}`);
+    const response = await fetch(`${API_BASE_URL}/search/songs?query=${encodeURIComponent(query)}`);
     return response.json();
   },
 
   async searchAlbums(query: string) {
-    const response = await fetch(`${API_BASE_URL}/api/search/albums?query=${encodeURIComponent(query)}`);
+    const response = await fetch(`${API_BASE_URL}/search/albums?query=${encodeURIComponent(query)}`);
     return response.json();
   },
 
   async searchArtists(query: string) {
-    const response = await fetch(`${API_BASE_URL}/api/search/artists?query=${encodeURIComponent(query)}`);
+    const response = await fetch(`${API_BASE_URL}/search/artists?query=${encodeURIComponent(query)}`);
     return response.json();
   },
 
   async searchPlaylists(query: string) {
-    const response = await fetch(`${API_BASE_URL}/api/search/playlists?query=${encodeURIComponent(query)}`);
+    const response = await fetch(`${API_BASE_URL}/search/playlists?query=${encodeURIComponent(query)}`);
     return response.json();
   },
 
   // Songs
   async getSong(id: string): Promise<{ data: Song }> {
-    const response = await fetch(`${API_BASE_URL}/api/songs/${id}`);
+    const response = await fetch(`${API_BASE_URL}/songs?id=${id}`);
     return response.json();
   },
 
   async getSongSuggestions(id: string) {
-    const response = await fetch(`${API_BASE_URL}/api/songs/${id}/suggestions`);
+    const response = await fetch(`${API_BASE_URL}/songs/${id}/suggestions`);
     return response.json();
   },
 
   // Albums
   async getAlbum(id: string): Promise<{ data: Album }> {
-    const response = await fetch(`${API_BASE_URL}/api/albums/${id}`);
+    const response = await fetch(`${API_BASE_URL}/albums?id=${id}`);
     return response.json();
   },
 
   // Artists
   async getArtist(id: string): Promise<{ data: Artist }> {
-    const response = await fetch(`${API_BASE_URL}/api/artists/${id}`);
+    const response = await fetch(`${API_BASE_URL}/artists?id=${id}`);
     return response.json();
   },
 
   async getArtistSongs(id: string, page: number = 1) {
-    const response = await fetch(`${API_BASE_URL}/api/artists/${id}/songs?page=${page}`);
+    const response = await fetch(`${API_BASE_URL}/artists/${id}/songs?page=${page}`);
     return response.json();
   },
 
   async getArtistAlbums(id: string, page: number = 1) {
-    const response = await fetch(`${API_BASE_URL}/api/artists/${id}/albums?page=${page}`);
+    const response = await fetch(`${API_BASE_URL}/artists/${id}/albums?page=${page}`);
     return response.json();
   },
 
   // Playlists
   async getPlaylist(id: string): Promise<{ data: Playlist }> {
-    const response = await fetch(`${API_BASE_URL}/api/playlists/${id}`);
+    const response = await fetch(`${API_BASE_URL}/playlists?id=${id}`);
     return response.json();
   },
 
   // Modules (trending, featured, etc.)
   async getModules() {
-    const response = await fetch(`${API_BASE_URL}/api/modules`);
+    const response = await fetch(`${API_BASE_URL}/modules`);
     return response.json();
   },
 };
