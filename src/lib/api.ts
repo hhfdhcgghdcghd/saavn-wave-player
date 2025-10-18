@@ -98,28 +98,28 @@ export interface Playlist {
 
 export const api = {
   // Search
-  async searchAll(query: string) {
-    const response = await fetch(`${API_BASE_URL}/search/all?query=${encodeURIComponent(query)}`);
+  async searchAll(query: string, page: number = 1) {
+    const response = await fetch(`${API_BASE_URL}/search/all?query=${encodeURIComponent(query)}&page=${page}`);
     return response.json();
   },
 
-  async searchSongs(query: string) {
-    const response = await fetch(`${API_BASE_URL}/search/songs?query=${encodeURIComponent(query)}`);
+  async searchSongs(query: string, page: number = 1) {
+    const response = await fetch(`${API_BASE_URL}/search/songs?query=${encodeURIComponent(query)}&page=${page}`);
     return response.json();
   },
 
-  async searchAlbums(query: string) {
-    const response = await fetch(`${API_BASE_URL}/search/albums?query=${encodeURIComponent(query)}`);
+  async searchAlbums(query: string, page: number = 1) {
+    const response = await fetch(`${API_BASE_URL}/search/albums?query=${encodeURIComponent(query)}&page=${page}`);
     return response.json();
   },
 
-  async searchArtists(query: string) {
-    const response = await fetch(`${API_BASE_URL}/search/artists?query=${encodeURIComponent(query)}`);
+  async searchArtists(query: string, page: number = 1) {
+    const response = await fetch(`${API_BASE_URL}/search/artists?query=${encodeURIComponent(query)}&page=${page}`);
     return response.json();
   },
 
-  async searchPlaylists(query: string) {
-    const response = await fetch(`${API_BASE_URL}/search/playlists?query=${encodeURIComponent(query)}`);
+  async searchPlaylists(query: string, page: number = 1) {
+    const response = await fetch(`${API_BASE_URL}/search/playlists?query=${encodeURIComponent(query)}&page=${page}`);
     return response.json();
   },
 

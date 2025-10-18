@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { api, Artist } from '@/lib/api';
+import { api, Artist, Song, Album } from '@/lib/api';
 import { SongCard } from '@/components/SongCard';
 import { AlbumCard } from '@/components/AlbumCard';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -8,12 +8,54 @@ import { Play, UserCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useMusicPlayer } from '@/contexts/MusicPlayerContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 
 export default function ArtistDetail() {
   const { id } = useParams<{ id: string }>();
   const [artist, setArtist] = useState<Artist | null>(null);
+  const [additionalSongs, setAdditionalSongs] = useState<Song[]>([]);
+  const [additionalAlbums, setAdditionalAlbums] = useState<Album[]>([]);
   const [loading, setLoading] = useState(true);
   const { playSong } = useMusicPlayer();
+
+  const [songsPage, setSongsPage] = useState(1);
+  const [albumsPage, setAlbumsPage] = useState(1);
+  const [hasMoreSongs, setHasMoreSongs] = useState(true);
+  const [hasMoreAlbums, setHasMoreAlbums] = useState(true);
+
+  const fetchArtistSongs = async (pageNum: number) => {
+    if (!id) return;
+    try {
+      const response = await api.getArtistSongs(id, pageNum);
+      if (response.data?.results) {
+        const newSongs = response.data.results;
+        if (newSongs.length === 0) {
+          setHasMoreSongs(false);
+        } else {
+          setAdditionalSongs(prev => pageNum === 1 ? newSongs : [...prev, ...newSongs]);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching artist songs:', error);
+    }
+  };
+
+  const fetchArtistAlbums = async (pageNum: number) => {
+    if (!id) return;
+    try {
+      const response = await api.getArtistAlbums(id, pageNum);
+      if (response.data?.results) {
+        const newAlbums = response.data.results;
+        if (newAlbums.length === 0) {
+          setHasMoreAlbums(false);
+        } else {
+          setAdditionalAlbums(prev => pageNum === 1 ? newAlbums : [...prev, ...newAlbums]);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching artist albums:', error);
+    }
+  };
 
   useEffect(() => {
     const fetchArtist = async () => {
@@ -23,6 +65,12 @@ export default function ArtistDetail() {
       try {
         const response = await api.getArtist(id);
         setArtist(response.data);
+        
+        // Fetch additional paginated data
+        await Promise.all([
+          fetchArtistSongs(1),
+          fetchArtistAlbums(1),
+        ]);
       } catch (error) {
         console.error('Error fetching artist:', error);
       } finally {
@@ -32,6 +80,27 @@ export default function ArtistDetail() {
 
     fetchArtist();
   }, [id]);
+
+  const loadMoreSongs = async () => {
+    if (!hasMoreSongs) return;
+    const nextPage = songsPage + 1;
+    setSongsPage(nextPage);
+    await fetchArtistSongs(nextPage);
+  };
+
+  const loadMoreAlbums = async () => {
+    if (!hasMoreAlbums) return;
+    const nextPage = albumsPage + 1;
+    setAlbumsPage(nextPage);
+    await fetchArtistAlbums(nextPage);
+  };
+
+  const { targetRef: songsTargetRef, isLoading: songsLoading } = useInfiniteScroll(loadMoreSongs);
+  const { targetRef: albumsTargetRef, isLoading: albumsLoading } = useInfiniteScroll(loadMoreAlbums);
+
+  // Combine top songs with additional songs
+  const allSongs = artist?.topSongs ? [...artist.topSongs, ...additionalSongs] : additionalSongs;
+  const allAlbums = artist?.topAlbums ? [...artist.topAlbums, ...additionalAlbums] : additionalAlbums;
 
   if (loading) {
     return (
@@ -88,7 +157,7 @@ export default function ArtistDetail() {
               </div>
               <Button
                 size="lg"
-                onClick={() => artist.topSongs?.[0] && playSong(artist.topSongs[0], artist.topSongs)}
+                onClick={() => allSongs[0] && playSong(allSongs[0], allSongs)}
                 className="bg-gradient-primary hover:shadow-glow transition-shadow"
               >
                 <Play className="w-5 h-5 mr-2 fill-current" />
@@ -103,29 +172,63 @@ export default function ArtistDetail() {
       <div className="container mx-auto px-4 py-8">
         <Tabs defaultValue="songs" className="w-full">
           <TabsList className="mb-8">
-            <TabsTrigger value="songs">Top Songs</TabsTrigger>
+            <TabsTrigger value="songs">Songs</TabsTrigger>
             <TabsTrigger value="albums">Albums</TabsTrigger>
           </TabsList>
 
           <TabsContent value="songs">
-            {artist.topSongs && artist.topSongs.length > 0 ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-                {artist.topSongs.map((song) => (
-                  <SongCard key={song.id} song={song} queue={artist.topSongs} />
-                ))}
-              </div>
+            {allSongs.length > 0 ? (
+              <>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+                  {allSongs.map((song) => (
+                    <SongCard key={song.id} song={song} queue={allSongs} />
+                  ))}
+                </div>
+                {hasMoreSongs && (
+                  <div ref={songsTargetRef} className="flex justify-center py-8">
+                    {songsLoading && (
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 w-full">
+                        {Array.from({ length: 6 }).map((_, i) => (
+                          <div key={i} className="space-y-3">
+                            <Skeleton className="aspect-square rounded-lg" />
+                            <Skeleton className="h-4 w-3/4" />
+                            <Skeleton className="h-3 w-1/2" />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
             ) : (
               <p className="text-center text-muted-foreground py-12">No songs available</p>
             )}
           </TabsContent>
 
           <TabsContent value="albums">
-            {artist.topAlbums && artist.topAlbums.length > 0 ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                {artist.topAlbums.map((album) => (
-                  <AlbumCard key={album.id} album={album} />
-                ))}
-              </div>
+            {allAlbums.length > 0 ? (
+              <>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                  {allAlbums.map((album) => (
+                    <AlbumCard key={album.id} album={album} />
+                  ))}
+                </div>
+                {hasMoreAlbums && (
+                  <div ref={albumsTargetRef} className="flex justify-center py-8">
+                    {albumsLoading && (
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 w-full">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <div key={i} className="space-y-3">
+                            <Skeleton className="aspect-square rounded-lg" />
+                            <Skeleton className="h-4 w-3/4" />
+                            <Skeleton className="h-3 w-1/2" />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
             ) : (
               <p className="text-center text-muted-foreground py-12">No albums available</p>
             )}

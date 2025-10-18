@@ -2,29 +2,49 @@ import { useEffect, useState } from 'react';
 import { api, Song } from '@/lib/api';
 import { SongCard } from '@/components/SongCard';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import heroImage from '@/assets/hero-music.jpg';
 
 export default function Home() {
   const [trendingSongs, setTrendingSongs] = useState<Song[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+
+  const fetchTrendingSongs = async (pageNum: number) => {
+    try {
+      const response = await api.searchSongs('trending', pageNum);
+      if (response.data?.results) {
+        const newSongs = response.data.results;
+        if (newSongs.length === 0) {
+          setHasMore(false);
+        } else {
+          setTrendingSongs(prev => pageNum === 1 ? newSongs : [...prev, ...newSongs]);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        // Fetch trending songs using search
-        const response = await api.searchSongs('trending');
-        if (response.data?.results) {
-          setTrendingSongs(response.data.results.slice(0, 12));
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        setLoading(false);
-      }
+      setLoading(true);
+      await fetchTrendingSongs(1);
+      setLoading(false);
     };
 
     fetchData();
   }, []);
+
+  const loadMore = async () => {
+    if (!hasMore) return;
+    const nextPage = page + 1;
+    setPage(nextPage);
+    await fetchTrendingSongs(nextPage);
+  };
+
+  const { targetRef, isLoading } = useInfiniteScroll(loadMore);
 
   return (
     <div className="min-h-screen pb-32">
@@ -66,11 +86,30 @@ export default function Home() {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 animate-fade-in">
-              {trendingSongs.map((song) => (
-                <SongCard key={song.id} song={song} queue={trendingSongs} />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 animate-fade-in">
+                {trendingSongs.map((song) => (
+                  <SongCard key={song.id} song={song} queue={trendingSongs} />
+                ))}
+              </div>
+
+              {/* Infinite Scroll Trigger */}
+              {hasMore && (
+                <div ref={targetRef} className="flex justify-center py-8">
+                  {isLoading && (
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 w-full">
+                      {Array.from({ length: 6 }).map((_, i) => (
+                        <div key={i} className="space-y-3">
+                          <Skeleton className="aspect-square rounded-lg" />
+                          <Skeleton className="h-4 w-3/4" />
+                          <Skeleton className="h-3 w-1/2" />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
           )}
         </section>
       </div>
