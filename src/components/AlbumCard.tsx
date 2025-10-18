@@ -10,6 +10,11 @@ export const AlbumCard = ({ album }: AlbumCardProps) => {
   const navigate = useNavigate();
   const imageUrl = album.image?.find(img => img.quality === '500x500')?.link || album.image?.[0]?.link;
 
+  // Safely extract artist names
+  const artistNames = typeof album.primaryArtists === 'string' 
+    ? album.primaryArtists 
+    : album.artists?.map(a => a.name).join(', ') || 'Unknown Artist';
+
   return (
     <Card 
       className="group relative overflow-hidden cursor-pointer transition-all duration-300 hover:scale-105 bg-card border-border hover:shadow-lg hover:shadow-primary/20"
@@ -26,7 +31,7 @@ export const AlbumCard = ({ album }: AlbumCardProps) => {
       </div>
       <div className="p-4">
         <h3 className="font-semibold text-foreground truncate mb-1">{album.name}</h3>
-        <p className="text-sm text-muted-foreground truncate">{album.primaryArtists}</p>
+        <p className="text-sm text-muted-foreground truncate">{artistNames}</p>
         <p className="text-xs text-muted-foreground mt-1">{album.year} • {album.songCount} songs</p>
       </div>
     </Card>

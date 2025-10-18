@@ -56,6 +56,11 @@ export default function AlbumDetail() {
 
   const imageUrl = album.image?.find(img => img.quality === '500x500')?.link || album.image?.[0]?.link;
 
+  // Safely extract artist names
+  const artistNames = typeof album.primaryArtists === 'string' 
+    ? album.primaryArtists 
+    : album.artists?.map(a => a.name).join(', ') || 'Unknown Artist';
+
   return (
     <div className="min-h-screen pb-32">
       {/* Album Header */}
@@ -71,7 +76,7 @@ export default function AlbumDetail() {
               <p className="text-sm font-semibold text-muted-foreground mb-2">ALBUM</p>
               <h1 className="text-4xl md:text-6xl font-bold mb-4">{album.name}</h1>
               <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground mb-6">
-                <span className="font-semibold text-foreground">{album.primaryArtists}</span>
+                <span className="font-semibold text-foreground">{artistNames}</span>
                 <span>•</span>
                 <span>{album.year}</span>
                 <span>•</span>
