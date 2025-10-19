@@ -1,50 +1,43 @@
 import { useEffect, useState } from 'react';
-import { api, Song } from '@/lib/api';
+import { api, Song, Album, Artist } from '@/lib/api';
 import { SongCard } from '@/components/SongCard';
+import { AlbumCard } from '@/components/AlbumCard';
+import { ArtistCard } from '@/components/ArtistCard';
+import { HorizontalScroll } from '@/components/HorizontalScroll';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import heroImage from '@/assets/hero-music.jpg';
+import { Sparkles, TrendingUp, Music2, Disc3 } from 'lucide-react';
 
 export default function Home() {
   const [trendingSongs, setTrendingSongs] = useState<Song[]>([]);
+  const [topAlbums, setTopAlbums] = useState<Album[]>([]);
+  const [topArtists, setTopArtists] = useState<Artist[]>([]);
+  const [newReleases, setNewReleases] = useState<Song[]>([]);
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-
-  const fetchTrendingSongs = async (pageNum: number) => {
-    try {
-      const response = await api.searchSongs('trending', pageNum);
-      if (response.data?.results) {
-        const newSongs = response.data.results;
-        if (newSongs.length === 0) {
-          setHasMore(false);
-        } else {
-          setTrendingSongs(prev => pageNum === 1 ? newSongs : [...prev, ...newSongs]);
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    }
-  };
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      await fetchTrendingSongs(1);
+      try {
+        const [songsRes, albumsRes, artistsRes, releasesRes] = await Promise.all([
+          api.searchSongs('trending', 1),
+          api.searchAlbums('latest', 1),
+          api.searchArtists('popular', 1),
+          api.searchSongs('new', 1),
+        ]);
+
+        if (songsRes.data?.results) setTrendingSongs(songsRes.data.results.slice(0, 12));
+        if (albumsRes.data?.results) setTopAlbums(albumsRes.data.results.slice(0, 10));
+        if (artistsRes.data?.results) setTopArtists(artistsRes.data.results.slice(0, 10));
+        if (releasesRes.data?.results) setNewReleases(releasesRes.data.results.slice(0, 10));
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
       setLoading(false);
     };
 
     fetchData();
   }, []);
-
-  const loadMore = async () => {
-    if (!hasMore) return;
-    const nextPage = page + 1;
-    setPage(nextPage);
-    await fetchTrendingSongs(nextPage);
-  };
-
-  const { targetRef, isLoading } = useInfiniteScroll(loadMore);
 
   return (
     <div className="min-h-screen pb-32">
@@ -69,49 +62,92 @@ export default function Home() {
       </div>
 
       <div className="container mx-auto px-4">
-        {/* Trending Songs */}
-        <section className="mb-12">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl md:text-3xl font-bold">Trending Now</h2>
-          </div>
-          
-          {loading ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-              {Array.from({ length: 12 }).map((_, i) => (
-                <div key={i} className="space-y-3">
-                  <Skeleton className="aspect-square rounded-lg" />
-                  <Skeleton className="h-4 w-3/4" />
-                  <Skeleton className="h-3 w-1/2" />
+        {loading ? (
+          <div className="space-y-12">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="space-y-4">
+                <Skeleton className="h-8 w-48" />
+                <div className="flex gap-4 overflow-hidden">
+                  {Array.from({ length: 6 }).map((_, j) => (
+                    <div key={j} className="min-w-[160px] space-y-3">
+                      <Skeleton className="aspect-square rounded-lg" />
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="h-3 w-1/2" />
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          ) : (
-            <>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 animate-fade-in">
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-8 animate-fade-in">
+            {/* Trending Songs */}
+            <section>
+              <div className="flex items-center gap-2 mb-6">
+                <div className="p-2 rounded-lg bg-gradient-primary">
+                  <TrendingUp className="w-5 h-5 text-primary-foreground" />
+                </div>
+                <h2 className="text-2xl md:text-3xl font-bold">Trending Now</h2>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
                 {trendingSongs.map((song) => (
                   <SongCard key={song.id} song={song} queue={trendingSongs} />
                 ))}
               </div>
+            </section>
 
-              {/* Infinite Scroll Trigger */}
-              {hasMore && (
-                <div ref={targetRef} className="flex justify-center py-8">
-                  {isLoading && (
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 w-full">
-                      {Array.from({ length: 6 }).map((_, i) => (
-                        <div key={i} className="space-y-3">
-                          <Skeleton className="aspect-square rounded-lg" />
-                          <Skeleton className="h-4 w-3/4" />
-                          <Skeleton className="h-3 w-1/2" />
-                        </div>
-                      ))}
-                    </div>
-                  )}
+            {/* New Releases */}
+            <section>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="p-2 rounded-lg bg-gradient-secondary">
+                  <Sparkles className="w-5 h-5 text-primary-foreground" />
                 </div>
-              )}
-            </>
-          )}
-        </section>
+                <h2 className="text-2xl md:text-3xl font-bold">New Releases</h2>
+              </div>
+              <HorizontalScroll title="">
+                {newReleases.map((song) => (
+                  <div key={song.id} className="min-w-[160px] md:min-w-[180px]">
+                    <SongCard song={song} queue={newReleases} />
+                  </div>
+                ))}
+              </HorizontalScroll>
+            </section>
+
+            {/* Top Albums */}
+            <section>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="p-2 rounded-lg bg-accent">
+                  <Disc3 className="w-5 h-5 text-accent-foreground" />
+                </div>
+                <h2 className="text-2xl md:text-3xl font-bold">Top Albums</h2>
+              </div>
+              <HorizontalScroll title="">
+                {topAlbums.map((album) => (
+                  <div key={album.id} className="min-w-[160px] md:min-w-[180px]">
+                    <AlbumCard album={album} />
+                  </div>
+                ))}
+              </HorizontalScroll>
+            </section>
+
+            {/* Popular Artists */}
+            <section>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="p-2 rounded-lg bg-gradient-primary">
+                  <Music2 className="w-5 h-5 text-primary-foreground" />
+                </div>
+                <h2 className="text-2xl md:text-3xl font-bold">Popular Artists</h2>
+              </div>
+              <HorizontalScroll title="">
+                {topArtists.map((artist) => (
+                  <div key={artist.id} className="min-w-[160px] md:min-w-[180px]">
+                    <ArtistCard artist={artist} />
+                  </div>
+                ))}
+              </HorizontalScroll>
+            </section>
+          </div>
+        )}
       </div>
     </div>
   );
