@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useRef, ReactNode, useEffect } from 'react';
 import { Song } from '@/lib/api';
+import { useCast } from '@/hooks/useCast';
 
 interface MusicPlayerContextType {
   currentSong: Song | null;
@@ -44,6 +45,15 @@ export const MusicPlayerProvider = ({ children }: { children: ReactNode }) => {
   const [volume, setVolumeState] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+  
+  const { 
+    isCasting, 
+    loadMedia, 
+    playCast, 
+    pauseCast, 
+    seekCast, 
+    setVolumeCast 
+  } = useCast();
 
   const playSong = (song: Song, newQueue?: Song[]) => {
     if (newQueue) {
@@ -60,14 +70,25 @@ export const MusicPlayerProvider = ({ children }: { children: ReactNode }) => {
     
     setCurrentSong(song);
     setIsPlaying(true);
+    
+    // Load media on Cast device if casting
+    if (isCasting) {
+      loadMedia(song, 0, true);
+    }
   };
 
   const pauseSong = () => {
     setIsPlaying(false);
+    if (isCasting) {
+      pauseCast();
+    }
   };
 
   const resumeSong = () => {
     setIsPlaying(true);
+    if (isCasting) {
+      playCast();
+    }
   };
 
   const playNext = () => {
@@ -106,7 +127,9 @@ export const MusicPlayerProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const seek = (time: number) => {
-    if (audioRef.current) {
+    if (isCasting) {
+      seekCast(time);
+    } else if (audioRef.current) {
       audioRef.current.currentTime = time;
       setCurrentTime(time);
     }
@@ -114,7 +137,9 @@ export const MusicPlayerProvider = ({ children }: { children: ReactNode }) => {
 
   const setVolume = (newVolume: number) => {
     setVolumeState(newVolume);
-    if (audioRef.current) {
+    if (isCasting) {
+      setVolumeCast(newVolume);
+    } else if (audioRef.current) {
       audioRef.current.volume = newVolume;
     }
   };
@@ -145,14 +170,15 @@ export const MusicPlayerProvider = ({ children }: { children: ReactNode }) => {
   }, [currentIndex, queue]);
 
   useEffect(() => {
-    if (audioRef.current) {
+    // Only play locally if NOT casting
+    if (audioRef.current && !isCasting) {
       if (isPlaying) {
         audioRef.current.play();
       } else {
         audioRef.current.pause();
       }
     }
-  }, [isPlaying, currentSong]);
+  }, [isPlaying, currentSong, isCasting]);
 
   return (
     <MusicPlayerContext.Provider

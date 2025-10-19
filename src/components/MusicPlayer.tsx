@@ -3,6 +3,7 @@ import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Maximize2 } from 
 import { useMusicPlayer } from '@/contexts/MusicPlayerContext';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
+import { CastButton } from '@/components/CastButton';
 
 export const MusicPlayer = () => {
   const { 
@@ -114,7 +115,7 @@ export const MusicPlayer = () => {
             </Button>
           </div>
 
-          {/* Volume & Fullscreen */}
+          {/* Volume, Cast & Fullscreen */}
           <div className="hidden md:flex items-center gap-3 flex-1 justify-end">
             <Button
               variant="ghost"
@@ -135,6 +136,9 @@ export const MusicPlayer = () => {
               onValueChange={handleVolumeChange}
               className="w-24 cursor-pointer"
             />
+            <div className="flex items-center">
+              <CastButton />
+            </div>
             <Button
               variant="ghost"
               size="icon"
