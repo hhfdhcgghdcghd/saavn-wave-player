@@ -43,12 +43,13 @@ export default function Home() {
     <div className="min-h-screen pb-32">
       {/* Hero Section */}
       <div className="relative h-[400px] md:h-[500px] overflow-hidden mb-8">
+        <div className="absolute inset-0 bg-gradient-hero" />
         <img
           src={heroImage}
           alt="Music Hero"
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover mix-blend-overlay opacity-40"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12">
           <div className="container mx-auto">
             <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">

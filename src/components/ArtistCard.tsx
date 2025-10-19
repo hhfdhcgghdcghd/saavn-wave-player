@@ -12,7 +12,7 @@ export const ArtistCard = ({ artist }: ArtistCardProps) => {
 
   return (
     <Card 
-      className="group relative overflow-hidden cursor-pointer transition-all duration-300 hover:scale-105 bg-card border-border hover:shadow-lg hover:shadow-primary/20"
+      className="group relative overflow-hidden cursor-pointer transition-all duration-300 hover:scale-105 bg-card border-border hover:shadow-glow-tertiary"
       onClick={() => navigate(`/artist/${artist.id}`)}
     >
       <div className="aspect-square relative overflow-hidden rounded-t-lg">

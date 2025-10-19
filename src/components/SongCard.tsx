@@ -14,7 +14,7 @@ export const SongCard = ({ song, queue = [] }: SongCardProps) => {
 
   return (
     <Card 
-      className="group relative overflow-hidden cursor-pointer transition-all duration-300 hover:scale-105 bg-card border-border hover:shadow-lg hover:shadow-primary/20"
+      className="group relative overflow-hidden cursor-pointer transition-all duration-300 hover:scale-105 bg-card border-border hover:shadow-glow"
       onClick={() => playSong(song, queue.length > 0 ? queue : [song])}
     >
       <div className="aspect-square relative overflow-hidden rounded-t-lg">

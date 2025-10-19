@@ -8,60 +8,66 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 240 10% 3.9%;
+    --background: 220 25% 8%;
     --foreground: 0 0% 98%;
 
-    --card: 240 8% 8%;
+    --card: 220 20% 12%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 240 8% 8%;
+    --popover: 220 20% 12%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 280 80% 65%;
+    --primary: 280 90% 60%;
     --primary-foreground: 0 0% 100%;
     
-    --primary-glow: 300 90% 70%;
-    --secondary-glow: 260 85% 60%;
+    --primary-glow: 320 95% 65%;
+    --secondary-glow: 240 90% 65%;
+    --tertiary-glow: 200 85% 60%;
 
-    --secondary: 240 5% 15%;
+    --secondary: 220 18% 18%;
     --secondary-foreground: 0 0% 98%;
 
-    --muted: 240 5% 15%;
-    --muted-foreground: 240 5% 65%;
+    --muted: 220 15% 20%;
+    --muted-foreground: 220 10% 65%;
 
-    --accent: 280 80% 65%;
+    --accent: 320 85% 60%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 240 5% 20%;
-    --input: 240 5% 20%;
-    --ring: 280 80% 65%;
+    --border: 220 15% 22%;
+    --input: 220 15% 22%;
+    --ring: 280 90% 60%;
 
     --radius: 0.75rem;
     
-    /* Music player gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(280 80% 65%), hsl(300 90% 70%));
-    --gradient-secondary: linear-gradient(135deg, hsl(260 85% 60%), hsl(280 80% 65%));
-    --gradient-card: linear-gradient(135deg, hsl(240 8% 10%), hsl(240 8% 8%));
+    /* Dynamic Music Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(280 90% 60%), hsl(320 95% 65%));
+    --gradient-secondary: linear-gradient(135deg, hsl(240 90% 65%), hsl(280 90% 60%));
+    --gradient-tertiary: linear-gradient(135deg, hsl(320 95% 65%), hsl(0 85% 65%));
+    --gradient-accent: linear-gradient(135deg, hsl(200 85% 60%), hsl(240 90% 65%));
+    --gradient-card: linear-gradient(135deg, hsl(220 20% 14%), hsl(220 20% 10%));
+    --gradient-hero: linear-gradient(135deg, hsl(280 90% 60% / 0.9), hsl(240 90% 65% / 0.7), hsl(220 25% 8% / 0.95));
     
     /* Glassmorphism */
-    --glass-bg: hsla(240, 8%, 8%, 0.7);
-    --glass-border: hsla(280, 80%, 65%, 0.2);
+    --glass-bg: hsla(220, 20%, 12%, 0.7);
+    --glass-border: hsla(280, 90%, 60%, 0.2);
     
-    /* Shadows */
-    --shadow-glow: 0 0 40px hsla(280, 80%, 65%, 0.3);
-    --shadow-card: 0 4px 20px hsla(0, 0%, 0%, 0.5);
+    /* Dynamic Shadows with color */
+    --shadow-glow: 0 0 40px hsla(280, 90%, 60%, 0.4);
+    --shadow-glow-secondary: 0 0 40px hsla(320, 95%, 65%, 0.3);
+    --shadow-glow-tertiary: 0 0 40px hsla(240, 90%, 65%, 0.3);
+    --shadow-card: 0 8px 32px hsla(280, 90%, 60%, 0.15);
 
-    --sidebar-background: 240 8% 8%;
+    --sidebar-background: 220 20% 12%;
     --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 280 80% 65%;
+    --sidebar-primary: 280 90% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 5% 15%;
+    --sidebar-accent: 220 18% 18%;
     --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 240 5% 20%;
-    --sidebar-ring: 280 80% 65%;
+    --sidebar-border: 220 15% 22%;
+    --sidebar-ring: 280 90% 60%;
   }
 }
 
